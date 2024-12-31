@@ -6,6 +6,8 @@ interface GlobalContextType {
   isLoggedIn: boolean;
   user: User | null;
   isLoading: any;
+  setIsLoggedIn: (isLoggedIn: boolean) => void;
+  setUser: (user: User) => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -51,6 +53,8 @@ export const GlobalProvider: FC<{ children: React.ReactNode }> = ({
         isLoggedIn,
         isLoading,
         user,
+        setIsLoggedIn,
+        setUser,
       }}
     >
       {children}
