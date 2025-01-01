@@ -1,27 +1,51 @@
-import { View, Text, FlatList, Image, RefreshControl } from "react-native";
-import React, { useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  RefreshControl,
+  Alert,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "@/constants";
 import SearchInput from "@/components/SearchInput";
 import Trending from "@/components/Trending";
 import EmptyState from "@/components/EmptyState";
+import { CustomModels } from "@/lib/customtypes";
+import { getAllVideos } from "@/lib/appwrite";
+import useAppwrite from "@/lib/useAppwrite";
+import VideoCard from "@/components/VideoCard";
 
 const Home = () => {
+  const {
+    data: posts,
+    isLoading,
+    refetch,
+  } = useAppwrite<CustomModels.Video<CustomModels.User>>(getAllVideos);
+
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // recall fetch list
+    await refetch();
     setRefreshing(false);
   };
 
   return (
     <SafeAreaView className="bg-primary h-full">
-      <FlatList<{ id: number }>
-        data={[{ id: 1 }, { id: 2 }, { id: 3 }]}
+      <FlatList<CustomModels.Video<CustomModels.User>>
+        data={posts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Text className="text-3xl text-white">{item.id}</Text>
+          <VideoCard
+            title={item.title}
+            thumbnail={item.thumbnail}
+            prompt={item.prompt}
+            video={item.video}
+            user={item.user}
+            id={item.id}
+          />
         )}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
@@ -52,7 +76,7 @@ const Home = () => {
               <Text className="text-gray-100 text-lg font-pregular mb-3">
                 Latest videos
               </Text>
-              <Trending posts={[{ id: 1 }, { id: 2 }, { id: 3 }]} />
+              <Trending posts={posts} />
             </View>
           </View>
         )}

@@ -1,13 +1,13 @@
 import { getCurrentUser } from "@/lib/appwrite";
-import { User } from "@/lib/customtypes";
+import { CustomModels } from "@/lib/customtypes";
 import { FC, createContext, useContext, useEffect, useState } from "react";
 
 interface GlobalContextType {
   isLoggedIn: boolean;
-  user: User | null;
+  user: CustomModels.User | null;
   isLoading: any;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
-  setUser: (user: User) => void;
+  setUser: (user: CustomModels.User) => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -25,7 +25,7 @@ export const GlobalProvider: FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<CustomModels.User | null>(null);
 
   useEffect(() => {
     getCurrentUser()

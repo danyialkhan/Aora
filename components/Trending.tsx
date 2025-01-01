@@ -1,13 +1,14 @@
 import { View, Text, FlatList } from "react-native";
+import { CustomModels } from "@/lib/customtypes";
 import React, { FC } from "react";
 
 interface TrendingProps {
-  posts: { id: number }[];
+  posts: CustomModels.Video<CustomModels.User>[];
 }
 
 const Trending: FC<TrendingProps> = ({ posts }) => {
   return (
-    <FlatList
+    <FlatList<CustomModels.Video<CustomModels.User>>
       data={posts}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
