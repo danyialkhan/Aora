@@ -11,6 +11,7 @@ export declare namespace CustomModels {
    * @property avatar - The URL to the user's avatar image.
    */
   type User = {
+    id: string;
     accountId: string;
     userName: string;
     email: string;

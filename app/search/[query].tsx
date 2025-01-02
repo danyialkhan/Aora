@@ -14,15 +14,17 @@ import { useLocalSearchParams } from "expo-router";
 const Search = () => {
   const { query } = useLocalSearchParams();
 
-  const { data: posts, isLoading } = useAppwrite<VideosType>(() =>
-    searchPosts(finalQuery)
-  );
+  const {
+    data: posts,
+    isLoading,
+    refetch,
+  } = useAppwrite<VideosType>(() => searchPosts(finalQuery));
 
   const finalQuery = Array.isArray(query) ? query[0] : query;
 
-  console.log("New query: ", finalQuery);
-
-  useEffect(() => {}, [query]);
+  useEffect(() => {
+    refetch();
+  }, [query]);
 
   return (
     <SafeAreaView className="bg-primary h-full">

@@ -48,6 +48,7 @@ export const decodeDocumentToUser = (doc: Models.Document): UserType => {
     avatar: doc.avatar,
     email: doc.email,
     userName: doc.username,
+    id: doc.$id,
   };
 };
 
@@ -65,10 +66,11 @@ export const decodeDocumentToVideo = (doc: Models.Document): VideosType => {
     video: doc.video,
     id: doc.$id,
     user: {
-      accountId: doc.users.accountId,
-      avatar: doc.users.avatar,
-      email: doc.users.email,
-      userName: doc.users.username,
+      accountId: doc.creator.accountId,
+      avatar: doc.creator.avatar,
+      email: doc.creator.email,
+      userName: doc.creator.username,
+      id: doc.creator.$id,
     },
   };
 };
@@ -167,7 +169,6 @@ export const getCurrentUser = async (): Promise<UserType> => {
 
     if (!currentUser) throw Error("Error while getting current user");
     const userData = currentUser.documents[0];
-
     return decodeDocumentToUser(userData);
   } catch (error) {
     console.error(error);
@@ -268,13 +269,49 @@ export const getLatestPosts = async (): Promise<VideosType[]> => {
  */
 export const searchPosts = async (query: string): Promise<VideosType[]> => {
   try {
-    console.log("searching for: ", query);
     const posts = await databases.listDocuments(databaseId, videoCollectionId, [
       Query.orderDesc("$createdAt"),
       Query.search("title", query),
     ]);
 
-    console.log("Searched results: ", posts);
+    const videos: VideosType[] = posts.documents.map((doc) =>
+      decodeDocumentToVideo(doc)
+    );
+
+    return videos;
+  } catch (error) {
+    console.error(error);
+    throw createCustomError(error);
+  }
+};
+
+/**
+ * Retrieves a list of video posts for a specific user.
+ *
+ * @param {string} userId - The ID of the user whose posts are to be retrieved.
+ * @returns {Promise<VideosType[]>} A promise that resolves to an array of video posts.
+ *
+ * @example
+ * ```typescript
+ * const userId = "user123";
+ * getUsersPosts(userId)
+ *   .then((videos) => {
+ *     console.log("User's videos:", videos);
+ *   })
+ *   .catch((error) => {
+ *     console.error("Error fetching user's videos:", error);
+ *   });
+ * ```
+ *
+ * @throws Will throw an error if the request to fetch posts fails.
+ */
+export const getUsersPosts = async (userId: string): Promise<VideosType[]> => {
+  try {
+    const posts = await databases.listDocuments(databaseId, videoCollectionId, [
+      Query.orderDesc("$createdAt"),
+      Query.equal("creator", userId),
+    ]);
+
     const videos: VideosType[] = posts.documents.map((doc) =>
       decodeDocumentToVideo(doc)
     );
