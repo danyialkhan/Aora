@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Image, RefreshControl } from "react-native";
+import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "@/constants";
@@ -19,6 +19,8 @@ const Search = () => {
   );
 
   const finalQuery = Array.isArray(query) ? query[0] : query;
+
+  console.log("New query: ", finalQuery);
 
   useEffect(() => {}, [query]);
 
@@ -50,6 +52,17 @@ const Search = () => {
             <View className="mt-6 mb-8">
               <SearchInput initialQuery={finalQuery} />
             </View>
+            <>
+              {isLoading && (
+                <View className="mt-6 mb-8 justify-center items-center">
+                  <ActivityIndicator
+                    size="large"
+                    color="#ffffff"
+                    className="w-12 h-12 justify-center absolute"
+                  />
+                </View>
+              )}
+            </>
           </View>
         )}
         ListEmptyComponent={() => (

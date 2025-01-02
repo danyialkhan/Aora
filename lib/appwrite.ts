@@ -135,10 +135,12 @@ export const createUser = async (
  * @returns {Promise<void>} - A promise that resolves when the user is signed in.
  * @throws {Error} - Throws an error if sign-in fails.
  */
-export const signIn = async (email: string, password: string) => {
+export const signIn = async (
+  email: string,
+  password: string
+): Promise<void> => {
   try {
-    const session = await account.createEmailPasswordSession(email, password);
-    return session;
+    await account.createEmailPasswordSession(email, password);
   } catch (error) {
     console.error(error);
     throw createCustomError(error);
@@ -266,11 +268,13 @@ export const getLatestPosts = async (): Promise<VideosType[]> => {
  */
 export const searchPosts = async (query: string): Promise<VideosType[]> => {
   try {
+    console.log("searching for: ", query);
     const posts = await databases.listDocuments(databaseId, videoCollectionId, [
       Query.orderDesc("$createdAt"),
       Query.search("title", query),
     ]);
 
+    console.log("Searched results: ", posts);
     const videos: VideosType[] = posts.documents.map((doc) =>
       decodeDocumentToVideo(doc)
     );

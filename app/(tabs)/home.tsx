@@ -9,6 +9,7 @@ import { VideosType } from "@/lib/customtypes";
 import { getAllVideos, getLatestPosts } from "@/lib/appwrite";
 import useAppwrite from "@/lib/useAppwrite";
 import VideoCard from "@/components/VideoCard";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 const Home = () => {
   const {
@@ -20,6 +21,7 @@ const Home = () => {
   const { data: latestPosts } = useAppwrite<VideosType>(getLatestPosts);
 
   const [refreshing, setRefreshing] = useState(false);
+  const { user } = useGlobalContext();
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -50,7 +52,7 @@ const Home = () => {
                   Welcome back
                 </Text>
                 <Text className="text-white text-2xl font-psemibold">
-                  Muhammad
+                  {user?.userName}
                 </Text>
               </View>
               <View className="mt-1.5 ">
