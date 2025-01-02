@@ -1,19 +1,12 @@
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  RefreshControl,
-  Alert,
-} from "react-native";
+import { View, Text, FlatList, Image, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "@/constants";
 import SearchInput from "@/components/SearchInput";
 import Trending from "@/components/Trending";
 import EmptyState from "@/components/EmptyState";
-import { CustomModels } from "@/lib/customtypes";
-import { getAllVideos } from "@/lib/appwrite";
+import { VideosType } from "@/lib/customtypes";
+import { getAllVideos, getLatestPosts } from "@/lib/appwrite";
 import useAppwrite from "@/lib/useAppwrite";
 import VideoCard from "@/components/VideoCard";
 
@@ -22,7 +15,9 @@ const Home = () => {
     data: posts,
     isLoading,
     refetch,
-  } = useAppwrite<CustomModels.Video<CustomModels.User>>(getAllVideos);
+  } = useAppwrite<VideosType>(getAllVideos);
+
+  const { data: latestPosts } = useAppwrite<VideosType>(getLatestPosts);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -34,7 +29,7 @@ const Home = () => {
 
   return (
     <SafeAreaView className="bg-primary h-full">
-      <FlatList<CustomModels.Video<CustomModels.User>>
+      <FlatList<VideosType>
         data={posts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
@@ -76,7 +71,7 @@ const Home = () => {
               <Text className="text-gray-100 text-lg font-pregular mb-3">
                 Latest videos
               </Text>
-              <Trending posts={posts} />
+              <Trending posts={latestPosts} />
             </View>
           </View>
         )}

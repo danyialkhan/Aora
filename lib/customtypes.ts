@@ -38,3 +38,7 @@ export declare namespace CustomModels {
     user: User;
   };
 }
+
+// Define a type alias for CustomModels.Video<CustomModels.User>
+export type VideosType = CustomModels.Video<CustomModels.User>;
+export type UserType = CustomModels.User;
