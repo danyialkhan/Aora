@@ -1,7 +1,14 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import React, { FC, useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import React, { FC, useRef, useState } from "react";
 import { CustomModels } from "@/lib/customtypes";
 import { icons } from "@/constants";
+import { ResizeMode, Video } from "expo-av";
 
 const VideoCard: FC<CustomModels.Video<CustomModels.User>> = ({
   title,
@@ -11,7 +18,20 @@ const VideoCard: FC<CustomModels.Video<CustomModels.User>> = ({
   id,
   user: { userName, avatar },
 }) => {
+  const videoRef = useRef<Video>(null);
   const [play, setPlay] = useState(false);
+  const [isLoading, setLoading] = useState<boolean>(false);
+
+  const handlePlaybackStatusUpdate = (status: any) => {
+    console.log("Video player status: ", status);
+    setLoading(status.isBuffering);
+
+    if (status.didJustFinish) {
+      setPlay(false);
+    } else if (status.error) {
+      setPlay(false);
+    }
+  };
 
   return (
     <View className="flex-col items-center px-4 mb-14">
@@ -44,7 +64,26 @@ const VideoCard: FC<CustomModels.Video<CustomModels.User>> = ({
         </View>
       </View>
       {play ? (
-        <Text>Playing</Text>
+        <View className="relative justify-center items-center">
+          {isLoading && (
+            <ActivityIndicator
+              size="large"
+              color="#ffffff"
+              className="w-12 h-12 justify-center absolute"
+            />
+          )}
+          <Video
+            ref={videoRef}
+            className="w-full h-60 rounded-xl mt-3"
+            source={{
+              uri: "https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+            }}
+            resizeMode={ResizeMode.CONTAIN}
+            useNativeControls
+            shouldPlay
+            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+          />
+        </View>
       ) : (
         <TouchableOpacity
           activeOpacity={0.7}

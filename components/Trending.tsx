@@ -10,11 +10,10 @@ import {
   StyleSheet,
 } from "react-native";
 import { VideosType } from "@/lib/customtypes";
-import React, { FC, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import * as Animatable from "react-native-animatable";
 import { icons } from "@/constants";
-import { useVideoPlayer, VideoView } from "expo-video";
-import { useEvent, useEventListener } from "expo";
+import { Video, ResizeMode, AVPlaybackStatus } from "expo-av";
 
 interface TrendingProps {
   posts: VideosType[];
@@ -38,55 +37,52 @@ const zoomOut = {
 };
 
 const TrendingItem: FC<TrendingItemProps> = ({ item, activeItem }) => {
-  const [isVideoPlaying, setIsPlaying] = useState<boolean>(false);
+  const videoRef = useRef<Video>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(false);
 
-  const player = useVideoPlayer(item.video, (player) => {
-    player.loop = false;
-  });
+  const handlePlaybackStatusUpdate = (status: any) => {
+    console.log("Video player status: ", status);
+    setLoading(status.isBuffering);
 
-  // Listen for status changes to handle loading and idle states
-  useEventListener(player, "statusChange", ({ status }) => {
-    if (status === "loading") {
-      setLoading(true);
-    } else {
-      setLoading(false);
+    if (status.didJustFinish) {
+      setIsPlaying(false);
+    } else if (status.error) {
+      setIsPlaying(false);
     }
-    if (status === "idle") {
-      setIsPlaying(false); // Show the thumbnail when the video stops
-    }
-  });
+  };
 
   return (
     <Animatable.View
       animation={activeItem.id === item.id ? zoomIn : zoomOut}
       className="mr-5"
     >
-      {isVideoPlaying ? (
-        <View className="relative">
+      {isPlaying ? (
+        <View className="relative justify-center items-center">
           {isLoading && (
             <ActivityIndicator
               size="large"
               color="#ffffff"
-              style={styles.loadingIndicator}
+              className="w-12 h-12 justify-center absolute"
             />
           )}
-          <VideoView
-            style={{ height: 72, width: 52 }}
-            className="w-52 h-72 rounded-35 mt-3 bg-white/10"
-            player={player}
+          <Video
+            ref={videoRef}
+            className="w-52 h-72 rounded-[33px] mt-3 bg-white/10"
+            source={{
+              uri: "https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+            }}
+            resizeMode={ResizeMode.CONTAIN}
+            useNativeControls
+            shouldPlay
+            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
           />
         </View>
       ) : (
         <TouchableOpacity
           className="relative justify-center items-center"
           activeOpacity={0.7}
-          onPress={() => {
-            if (!isVideoPlaying) {
-              setIsPlaying(true); // Show the video player
-              player.play(); // Start playing the video
-            }
-          }}
+          onPress={() => setIsPlaying(true)}
         >
           <ImageBackground
             source={{ uri: item.thumbnail }}
@@ -135,14 +131,5 @@ const Trending: FC<TrendingProps> = ({ posts }) => {
     />
   );
 };
-
-const styles = StyleSheet.create({
-  loadingIndicator: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: [{ translateX: -25 }, { translateY: -25 }],
-  },
-});
 
 export default Trending;

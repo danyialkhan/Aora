@@ -30,7 +30,6 @@ export const GlobalProvider: FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     getCurrentUser()
       .then((res) => {
-        console.log("Current User: ", res);
         if (res) {
           setIsLoggedIn(true);
           setUser(res);
