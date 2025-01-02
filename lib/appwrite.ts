@@ -245,3 +245,39 @@ export const getLatestPosts = async (): Promise<VideosType[]> => {
     throw createCustomError(error);
   }
 };
+
+/**
+ * Searches for posts based on the provided query string.
+ *
+ * @param {string} query - The search query to filter posts by title.
+ * @returns {Promise<VideosType[]>} A promise that resolves to an array of videos matching the search query.
+ *
+ * @example
+ * ```typescript
+ * const query = "example search";
+ * searchPosts(query).then((videos) => {
+ *   console.log(videos);
+ * }).catch((error) => {
+ *   console.error(error);
+ * });
+ * ```
+ *
+ * @throws Will throw an error if the search operation fails.
+ */
+export const searchPosts = async (query: string): Promise<VideosType[]> => {
+  try {
+    const posts = await databases.listDocuments(databaseId, videoCollectionId, [
+      Query.orderDesc("$createdAt"),
+      Query.search("title", query),
+    ]);
+
+    const videos: VideosType[] = posts.documents.map((doc) =>
+      decodeDocumentToVideo(doc)
+    );
+
+    return videos;
+  } catch (error) {
+    console.error(error);
+    throw createCustomError(error);
+  }
+};
